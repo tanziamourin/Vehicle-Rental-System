@@ -1,5 +1,5 @@
 import { pool } from "../../config/db";
-
+// create
 const createVehicle = async (payload: any) => {
   const { vehicle_name, type, registration_number, daily_rent_price } = payload;
 
@@ -24,12 +24,12 @@ const createVehicle = async (payload: any) => {
 
   return result.rows[0];
 };
-
+// get all
 const getAllVehicles = async () => {
   const result = await pool.query(`SELECT * FROM vehicles ORDER BY id DESC`);
   return result.rows;
 };
-
+// get single one
 const getSingleVehicle = async (vehicleId: string) => {
   const result = await pool.query(
     `SELECT * FROM vehicles WHERE id=$1`,
@@ -42,7 +42,7 @@ const getSingleVehicle = async (vehicleId: string) => {
 
   return result.rows[0];
 };
-
+// update
 const updateVehicle = async (vehicleId: string, payload: any) => {
   const fields = Object.keys(payload);
   const values = Object.values(payload);
@@ -61,7 +61,7 @@ const updateVehicle = async (vehicleId: string, payload: any) => {
 
   return result.rows[0];
 };
-
+// delete
 const deleteVehicle = async (vehicleId: string) => {
   // Check active bookings
   const activeBookings = await pool.query(

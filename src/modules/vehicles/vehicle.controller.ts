@@ -55,11 +55,11 @@ const getSingleVehicle = async (req: Request, res: Response) => {
   try {
     const {vehicleId} = req.params as {vehicleId:string};
 
-    const result = await vehicleService.getSingleVehicle ( parseInt (vehicleId));
+    const result = await vehicleService.getSingleVehicle ( parseInt(vehicleId));
 
     return res.status(200).json({
       success: true,
-      message: "Vehicle updated successfully",
+      message: "Vehicle get successfully",
       data: result,
     });
   } catch (error: any) {

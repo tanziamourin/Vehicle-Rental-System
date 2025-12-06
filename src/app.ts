@@ -22,7 +22,7 @@ app.get('/health', (req: Request, res: Response) => {
 })
 
 // Root Endpoint
-app.get('/', protect, (req: Request, res: Response) => {
+app.get('/', (req: Request, res: Response) => {
   res.send('Server is running!')
 })
 app.get('/api/v1', protect, (req: Request, res: Response) => {
