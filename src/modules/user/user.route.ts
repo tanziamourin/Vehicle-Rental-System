@@ -17,4 +17,4 @@ router.delete("/:userId", authorize("admin"), userController.DeleteUserById);
 // Admin Profile handled 
 router.put("/:userId", authorize(), userController.UpdateUserById);
 
-export default router;
+export const userRouter = router;

@@ -20,7 +20,7 @@ const GetUserById = async (userId: number) => {
   return result.rows[0];
 };
 
-// Update a user by ID
+// Update by ID
 const UpdateUserById = async (userId: number, updateData: any) => {
   const fields = [];
   const values = [];
@@ -46,9 +46,9 @@ const UpdateUserById = async (userId: number, updateData: any) => {
   return result.rows[0];
 };
 
-// Delete a user by ID
+// Delete by ID
 const DeleteUserById = async (userId: number) => {
-  // Check if user has active bookings
+  
   const bookingCheck = await pool.query(
     'SELECT * FROM bookings WHERE customer_id = $1 AND status = $2',
     [userId, 'active']

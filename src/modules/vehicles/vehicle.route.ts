@@ -14,4 +14,4 @@ router.post("/", protect, authorize("admin"), vehicleController.createVehicle);
 router.put("/:vehicleId", protect, authorize("admin"), vehicleController.updateVehicle);
 router.delete("/:vehicleId", protect, authorize("admin"), vehicleController.deleteVehicle);
 
-export const vehicleRoute = router;
+export const vehicleRoutes = router;

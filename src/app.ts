@@ -1,10 +1,11 @@
 import express, { Request, Response } from 'express'
 
-import initDb from './config/db';
-import logger from './middleware/logger';
-import { userRoutes } from './modules/user/user.route';
-import { authRoutes } from './modules/auth/auth.routes';
+// import initDb from './config/db';
+
 import { vehicleRoutes } from './modules/vehicles/vehicle.route';
+import { protect } from './middleware/auth';
+import { authRoute } from './modules/auth/auth.route';
+import { userRouter } from './modules/user/user.route';
 // import { bookingRoutes } from './modules/bookings/booking.route';
 
 const app = express()
@@ -21,18 +22,18 @@ app.get('/health', (req: Request, res: Response) => {
 })
 
 // Root Endpoint
-app.get('/', logger, (req: Request, res: Response) => {
-  res.send('Wow😲Vehicle Rental System Server is running!')
+app.get('/', protect, (req: Request, res: Response) => {
+  res.send('Server is running!')
 })
-app.get('/api/v1', logger, (req: Request, res: Response) => {
-  res.send('Wow😲Vehicle Rental System Server is running!')
+app.get('/api/v1', protect, (req: Request, res: Response) => {
+  res.send('Server is running!')
 })
 
 // Authentication 
-app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/auth', authRoute);
 
 // User 
-app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/users', userRouter);
 
 // Vehicle
 app.use('/api/v1/vehicles', vehicleRoutes);
