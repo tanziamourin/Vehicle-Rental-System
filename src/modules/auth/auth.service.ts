@@ -1,14 +1,27 @@
 import { pool } from "../../config/db";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import { TJwtPayload } from "../../types/jwtPayload";
 
-export const JWT_SECRET = "SUPER_SECRET_VEHICLE_RENTAL_KEY"; // env এ রাখবে
+dotenv.config();
 
-// ---------- SIGNUP ----------
-const signup = async (name: string, email: string, password: string, phone: string, role: string) => {
-  
-  const userExists = await pool.query(`SELECT * FROM users WHERE email=$1`, [email]);
+
+// signup
+const signup = async (userInfo: {
+  name: string;
+  email: string;
+  password: string;
+  phone: string;
+  role: string;
+}) => {
+  const { name, email, password, phone, role } = userInfo;
+
+  const userExists = await pool.query(
+    `SELECT * FROM users WHERE email=$1`,
+    [email.toLowerCase()]
+  );
+
   if (userExists.rows.length > 0) {
     throw new Error("Email already registered");
   }
@@ -21,33 +34,43 @@ const signup = async (name: string, email: string, password: string, phone: stri
       VALUES ($1, $2, $3, $4, $5)
       RETURNING id, name, email, phone, role
     `,
-    [name, email, hashedPassword, phone, role]
+    [name, email.toLowerCase(), hashedPassword, phone, role]
   );
 
   return newUser.rows[0];
 };
 
-// ---------- SIGNIN ----------
+// signin
 const signin = async (email: string, password: string) => {
-  const user = await pool.query(`SELECT * FROM users WHERE email=$1`, [email]);
+  const result = await pool.query(
+    `SELECT * FROM users WHERE email=$1`,
+    [email.toLowerCase()]
+  );
 
-  if (user.rows.length === 0) {
+  const user = result.rows[0];
+
+  if (!user) {
     throw new Error("User not found");
   }
 
-  const isMatch = await bcrypt.compare(password, user.rows[0].password);
+  const isMatch = await bcrypt.compare(password, user.password);
+
   if (!isMatch) {
     throw new Error("Invalid credentials");
   }
 
   const payload: TJwtPayload = {
-    id: user.rows[0].id,
-    name: user.rows[0].name,
-    email: user.rows[0].email,
-    role: user.rows[0].role,
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
   };
 
-  const token = jwt.sign(payload, JWT_SECRET, { expiresIn: "7d" });
+  const secret = process.env.JWT_SECRET as string;
+
+  const token = jwt.sign(payload, secret, {
+    expiresIn: "7d",
+  });
 
   return { token, user: payload };
 };

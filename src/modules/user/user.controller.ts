@@ -1,55 +1,92 @@
 import { Request, Response } from "express";
-import { userServices } from "./user.service";
+import { userService } from "./user.service";
 
-const createUser = async (req: Request, res: Response) => {
+// Get all
+ 
+const GetAllUsers = async (req: Request, res: Response) => {
   try {
-    const result = await userServices.createUserIntoDB(req.body);
-    return res.status(201).json({
+    const { role } = (req as any).user;
+    if (role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied. Only admin can view users.'
+      });
+    }
+
+    const result = await userService.GetAllUsers();
+    res.status(200).json({
       success: true,
-      message: "User created",
-      data: result.rows[0],
+      message: 'Users fetched successfully.',
+      data: result
     });
   } catch (error: any) {
-    return res.status(500).json({
-      success: true,
-      message: error.message,
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch users.',
+      error: error.message
     });
   }
 };
 
-const getAllUser = async (req: Request, res: Response) => {
+// Update user by ID 
+
+const UpdateUserById = async (req: Request, res: Response) => {
+  const { userId } = req.params as { userId: string };
+  const { user: { id: currentUserId, role } } = req as any;
+
   try {
-    const result = await userServices.getAllUserIntoDB();
-    return res.status(201).json({
+    if (role !== 'admin' && currentUserId !== parseInt(userId)) {
+      return res.status(403).json({
+        success: false,
+        message: 'You are not allowed to update this user.'
+      });
+    }
+
+    const result = await userService.UpdateUserById(parseInt(userId), req.body);
+    res.status(200).json({
       success: true,
-      message: "User created",
-      data: result.rows,
+      message: 'User updated successfully.',
+      data: result
     });
   } catch (error: any) {
-    return res.status(500).json({
-      success: true,
-      message: error.message,
+    res.status(400).json({
+      success: false,
+      message: 'Failed to update user.',
+      error: error.message
     });
   }
 };
 
-const getSingleUser = async (req: Request, res: Response) => {
+// Delete user by ID
+
+const DeleteUserById = async (req: Request, res: Response) => {
+  const { userId } = req.params as { userId: string };
+  const { role } = (req as any).user;
+
+  if (role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Only admin can delete users.'
+    });
+  }
+
   try {
-    const email = req.user!.email
-    const result = await userServices.getSingleUserIntoDB(email);
-    return res.status(201).json({
+    await userService.DeleteUserById(parseInt(userId));
+    res.status(200).json({
       success: true,
-      message: "User created",
-      data: result.rows,
+      message: 'User deleted successfully.'
     });
   } catch (error: any) {
-    return res.status(500).json({
-      success: true,
-      message: error.message,
+    res.status(400).json({
+      success: false,
+      message: 'Failed to delete user.',
+      error: error.message
     });
   }
 };
 
 export const userController = {
-  createUser,getAllUser,getSingleUser
+  GetAllUsers,
+  UpdateUserById,
+  DeleteUserById
 };

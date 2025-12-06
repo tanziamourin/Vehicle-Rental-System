@@ -1,12 +1,12 @@
+import { config } from "dotenv";
 import { Pool } from "pg";
 
+
 export const pool = new Pool({
-  connectionString:
-    "postgresql://neondb_owner:npg_EU19VTPbIXtm@ep-lively-base-adc2bs5l-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require",
+  connectionString: `${config.connectionString}`,
 });
-
 export const initDB = async () => {
-
+// user
   await pool.query(`
         CREATE TABLE IF NOT EXISTS users(
         id SERIAL PRIMARY KEY,
@@ -19,7 +19,7 @@ export const initDB = async () => {
         updated_at TIMESTAMP DEFAULT NOW()
         )
         `);
-
+// vehicles
   await pool.query(`
         CREATE TABLE IF NOT EXISTS vehicles(
         id SERIAL PRIMARY KEY,
@@ -31,6 +31,19 @@ export const initDB = async () => {
         availability_status VARCHAR(50) NOT NULL DEFAULT 'available'
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
+        )
+    `);
+    // booking
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS bookings(
+        id SERIAL PRIMARY KEY,
+        customer_id INT NOT NULL REFERENCES users(id) ON DElETE CASCADE,
+        vehicles_id INT NOT NULL REFERENCES vehicles(id) ON DElETE CASCADE,
+        rent_start_date DATE NOT NULL,
+        rent_end_date DATE NOT NULL,  
+        total_price DECIMAL(10, 2) NOT NULL,
+        status VARCHAR(50) NOT NULL DEFAULT 'active'
+        
         )
     `);
   console.log("Neon Database Connected");

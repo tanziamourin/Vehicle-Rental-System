@@ -1,11 +1,20 @@
 import { Router } from "express";
 import { userController } from "./user.controller";
-import auth from "../../middleware/auth";
-import { Roles } from "../auth/auth.constant";
+import { authorize, protect } from "../../middleware/auth";
 
 const router = Router();
 
-router.post("/", userController.createUser);
-router.get("/", auth(Roles.admin), userController.getAllUser);
-router.get("/singleuser", auth(Roles.customer,Roles.customer), userController.getSingleUser);
-export const userRoute = router;
+// Protect all user routes
+router.use(protect);
+
+// Admin only
+router.get("/", authorize("admin"), userController.GetAllUsers);
+
+// delete
+
+router.delete("/:userId", authorize("admin"), userController.DeleteUserById);
+
+// Admin Profile handled 
+router.put("/:userId", authorize(), userController.UpdateUserById);
+
+export default router;

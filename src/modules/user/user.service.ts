@@ -1,46 +1,76 @@
-import bcrypt from "bcryptjs";
 import { pool } from "../../config/db";
 
-const createUserIntoDB = async (payload: Record<string, unknown>) => {
-  const { name, email, password, role } = payload;
-
-  const hashPassword = await bcrypt.hash(password as string, 12);
-
+// Get all users
+const GetAllUsers = async () => {
   const result = await pool.query(
-    `
-      INSERT INTO users(name,email,password,role) VALUES($1,$2,$3,$4) RETURNING id,name,email,age,created_at,updated_at,role
-    `,
-    [name, email, hashPassword, role]
+    'SELECT id, name, email, phone, role FROM users ORDER BY id'
   );
-
-  //   delete result.rows[0].password
-
-  return result;
+  return result.rows;
 };
 
-const getAllUserIntoDB = async () => {
+// Get a single user by ID
+const GetUserById = async (userId: number) => {
   const result = await pool.query(
-    `
-    SELECT id,name,email,age,created_at,updated_at FROM users
-    `
+    'SELECT id, name, email, phone, role FROM users WHERE id = $1',
+    [userId]
   );
 
-  return result;
+  if (result.rows.length === 0) throw new Error('User not found');
+
+  return result.rows[0];
 };
 
-const getSingleUserIntoDB = async (email: string) => {
-  const result = await pool.query(
-    `
-    SELECT id,name,email,age,created_at,updated_at FROM users WHERE email=$1
-    `,
-    [email]
+// Update a user by ID
+const UpdateUserById = async (userId: number, updateData: any) => {
+  const fields = [];
+  const values = [];
+  let paramCount = 1;
+
+  for (const [key, value] of Object.entries(updateData)) {
+    if (value !== undefined && value !== null && key !== 'password' && key !== 'id') {
+      fields.push(`${key} = $${paramCount}`);
+      values.push(value);
+      paramCount++;
+    }
+  }
+
+  if (fields.length === 0) throw new Error('No fields to update');
+
+  values.push(userId);
+
+  const query = `UPDATE users SET ${fields.join(', ')}, updated_at = NOW() WHERE id = $${paramCount} RETURNING id, name, email, phone, role`;
+  const result = await pool.query(query, values);
+
+  if (result.rows.length === 0) throw new Error('User not found');
+
+  return result.rows[0];
+};
+
+// Delete a user by ID
+const DeleteUserById = async (userId: number) => {
+  // Check if user has active bookings
+  const bookingCheck = await pool.query(
+    'SELECT * FROM bookings WHERE customer_id = $1 AND status = $2',
+    [userId, 'active']
   );
 
-  return result;
+  if (bookingCheck.rows.length > 0) {
+    throw new Error('Cannot delete user with active bookings');
+  }
+
+  const result = await pool.query(
+    'DELETE FROM users WHERE id = $1 RETURNING id',
+    [userId]
+  );
+
+  if (result.rows.length === 0) throw new Error('User not found');
+
+  return result.rows[0];
 };
 
-export const userServices = {
-  createUserIntoDB,
-  getAllUserIntoDB,
-  getSingleUserIntoDB,
+export const userService = {
+  GetAllUsers,
+  GetUserById,
+  UpdateUserById,
+  DeleteUserById
 };

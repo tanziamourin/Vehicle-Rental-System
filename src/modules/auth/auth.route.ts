@@ -1,7 +1,5 @@
-
-
 /**
- * According to requirement:
+ *  requirement:
  * POST /api/v1/auth/signup
  * POST /api/v1/auth/signin
  */
