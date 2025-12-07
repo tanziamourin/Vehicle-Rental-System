@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { vehicleController } from "./vehicle.controller";
-import { authorize, protect } from "../../middleware/auth";
-// import { protect, authorize } from "../../middlewares/auth";
+import auth from "../../middleware/auth";
+
+
 
 const router = Router();
 
@@ -10,8 +11,8 @@ router.get("/", vehicleController.getAllVehicles);
 router.get("/:vehicleId", vehicleController.getSingleVehicle);
 
 // Admin Only
-router.post("/", protect, authorize("admin"), vehicleController.createVehicle);
-router.put("/:vehicleId", protect, authorize("admin"), vehicleController.updateVehicle);
-router.delete("/:vehicleId", protect, authorize("admin"), vehicleController.deleteVehicle);
+router.post("/", auth("admin"), vehicleController.createVehicle);
+router.put("/:vehicleId", auth("admin"), vehicleController.updateVehicle);
+router.delete("/:vehicleId", auth("admin"), vehicleController.deleteVehicle);
 
 export const vehicleRoutes = router;

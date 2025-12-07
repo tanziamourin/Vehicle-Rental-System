@@ -39,7 +39,7 @@ async getAllBookings (req:Request, res:Response){
     try {
         const {user:{id:userId,role }}=req as any;
         const isAdmin = role === "admin";
-        const bookings =await bookingService.getAllBookings(userId,role,isAdmin);
+        const bookings =await bookingService.getBookings(userId,role,isAdmin);
         res.status(200).json({
             success : true,
             message: isAdmin ? "all bookings" : "your bookings",

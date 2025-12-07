@@ -1,9 +1,3 @@
-/**
- *  requirement:
- * POST /api/v1/auth/signup
- * POST /api/v1/auth/signin
- */
-
 import { Router } from "express";
 import { authController } from "./auth.controller";
 

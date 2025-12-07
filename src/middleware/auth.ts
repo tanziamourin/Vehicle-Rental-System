@@ -1,44 +1,46 @@
-import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import { TJwtPayload } from "../types/jwtPayload";
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
+import config from '../config';
 
-// Protect: Check JWT
-export const protect = (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const header = req.headers.authorization;
-    if (!header) {
-      return res.status(401).json({ success: false, message: "No token provided" });
+interface MyJwtPayload extends JwtPayload {
+  id: number;
+  email: string;
+  role: string;
+}
+
+const auth = (...roles: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const authHeader = req.headers.authorization;
+
+      if (!authHeader) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+      }
+
+      const token = authHeader.startsWith('Bearer ')
+        ? authHeader.split(' ')[1]
+        : authHeader;
+
+      if (!token) {
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
+      }
+
+      const decoded = jwt.verify(
+        token,
+        config.jwtSecret as string
+      ) as unknown as MyJwtPayload;
+
+      (req as any).user = decoded;
+
+      if (roles.length && !roles.includes(decoded.role)) {
+        return res.status(403).json({ success: false, message: 'Forbidden' });
+      }
+
+      next();
+    } catch (error) {
+      return res.status(401).json({ success: false, message: 'Unauthorized' });
     }
-
-    const [bearer, token] = header.split(" ");
-    if (bearer.toLowerCase() !== "bearer" || !token) {
-      return res.status(401).json({ success: false, message: "Invalid token format" });
-    }
-
-    const secret = process.env.JWT_SECRET as string;
-    const decoded = jwt.verify(token, secret) as TJwtPayload;
-
-    req.user = decoded;
-    next();
-  } catch (err: any) {
-    return res.status(401).json({
-      success: false,
-      message: "Unauthorized: " + err.message
-    });
-  }
-};
-
-// Role-based authorize
-export const authorize = (...roles: Array<"admin" | "customer">) => {
-  return (req: Request, res: Response, next: NextFunction) => {
-    if (!req.user) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ success: false, message: "Forbidden: Access denied" });
-    }
-
-    next();
   };
 };
+
+export default auth;

@@ -1,9 +1,12 @@
 import { config } from "dotenv";
 import { Pool } from "pg";
 
+config();
 
 export const pool = new Pool({
-  connectionString: `${config.connectionString}`,
+  
+  connectionString: process.env.CONNECTION_STRING,
+ 
 });
 export const initDB = async () => {
 // user
@@ -19,16 +22,21 @@ export const initDB = async () => {
         updated_at TIMESTAMP DEFAULT NOW()
         )
         `);
+
+        await pool.query(
+          `
+          ALTER TABLE users ADD COLUMN IF NOT EXISTS phone VARCHAR (15);
+          `
+        )
 // vehicles
   await pool.query(`
         CREATE TABLE IF NOT EXISTS vehicles(
         id SERIAL PRIMARY KEY,
-        vehicles_name VARCHAR(250) NOT NULL,
+        vehicle_name VARCHAR(250) NOT NULL,
         type VARCHAR(50) NOT NULL,
         registration_number VARCHAR(100) NOT NULL UNIQUE ,
         daily_rent_price DECIMAL(10, 2) NOT NULL,
-        availability_status VARCHAR(50) NOT NULL DEFAULT 'available'
-        availability_status VARCHAR(50) NOT NULL DEFAULT 'available'
+        availability_status VARCHAR(50) NOT NULL DEFAULT 'available',
         created_at TIMESTAMP DEFAULT NOW(),
         updated_at TIMESTAMP DEFAULT NOW()
         )

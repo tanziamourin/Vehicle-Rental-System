@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
 import { authService } from "./auth.service";
 
+// signup
 const signup = async (req: Request, res: Response) => {
   try {
     const { name, email, password, phone, role } = req.body;
 
-    const newUser = await authService.signup(name, email, password, phone, role);
+    const newUser = await authService.signup({name, email, password, phone, role});
 
     return res.status(201).json({
       success: true,
@@ -13,6 +14,7 @@ const signup = async (req: Request, res: Response) => {
       data: newUser,
     });
   } catch (error: any) {
+    console.log(error);
     return res.status(400).json({
       success: false,
       message: error.message,
@@ -20,6 +22,7 @@ const signup = async (req: Request, res: Response) => {
   }
 };
 
+// signin
 const signin = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;

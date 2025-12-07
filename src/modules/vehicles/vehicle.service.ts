@@ -30,7 +30,7 @@ const getAllVehicles = async () => {
   return result.rows;
 };
 // get single one
-const getSingleVehicle = async (vehicleId: string) => {
+const getSingleVehicle = async (vehicleId: number) => {
   const result = await pool.query(
     `SELECT * FROM vehicles WHERE id=$1`,
     [vehicleId]
@@ -43,7 +43,7 @@ const getSingleVehicle = async (vehicleId: string) => {
   return result.rows[0];
 };
 // update
-const updateVehicle = async (vehicleId: string, payload: any) => {
+const updateVehicle = async (vehicleId: number, payload: any) => {
   const fields = Object.keys(payload);
   const values = Object.values(payload);
 
@@ -62,8 +62,8 @@ const updateVehicle = async (vehicleId: string, payload: any) => {
   return result.rows[0];
 };
 // delete
-const deleteVehicle = async (vehicleId: string) => {
-  // Check active bookings
+const deleteVehicle = async (vehicleId: number) => {
+
   const activeBookings = await pool.query(
     `SELECT * FROM bookings WHERE vehicle_id=$1 AND status='active'`,
     [vehicleId]

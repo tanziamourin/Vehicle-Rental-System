@@ -1,4 +1,5 @@
-import { pool } from '../../config/db';
+import { pool } from './../../config/db';
+
 
 export const bookingService ={
     // create booking
@@ -100,10 +101,81 @@ export const bookingService ={
     // get booking by id
 
     async getBookingById (id:number){
+         const result = await pool.query(
+              `SELECT * FROM bookings WHERE id=$1`,
+                [id]
+         );
+         if (result.rows.length === 0) {
+            throw new Error("booking not found");
+            
+         }
+         return result.rows[0];
+    },
 
+  async updateBookingStatus(
+    id: number,
+    status: string,
+    userId: number,
+    role: string
+  ) {
+    const booking = await this.getBookingById(id);
+    if (role === 'customer') {
+        if (status !== 'cancelled') {
+            throw new Error("customer can only cancel booking");
+            
+        }
+        if (booking.customer_id !== userId) {
+            throw new Error("can't cancel another customer's booking");
+            
+        }
+        if (new Date() >= new Date(booking.rent_start_date) ) {
+            throw new Error("cannot cancel after the booking start date");
+            
+        }
+       
     }
+// admin mark
+     if (status === 'returned' && role !== 'admin') {
+            throw new Error("only admin can booking as returned");
+            
+        }
+        const updateRes = await pool.query(
+            `UPDATE bookings SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *`,
+            [status, id]
+        );
+        if (status === 'cancelled' || status === 'returned') {
+            await pool.query(
+                `UPDATE vehicles SET availability_status = $1 WHERE id = $2`, ['available', booking.vehicle_id]
+            );
+            if (status === 'returned') {
+                const VercelRes = await pool.query(
+                    `SELECT availability_status FROM vehicles WHERE id = $1`, [booking.vehicle_id]
+                );
+                return{
+                    ...updateRes.rows[0],
+                    vehicle:{
+                    availability_status : VercelRes.rows[0].availability_status 
+                    }
+                };
+            }
+        }
+        return updateRes.rows[0];
+  },
+//   delete booking 
+async deleteBooking(id:number){
+     const booking = await this.getBookingById(id);
+     if (booking.status === 'active') {
+        await pool.query(
+            `UPDATE vehicles SET availability_status =$1 WHERE id = $2` ,
+            ['availability', booking.vehicle_id]
+        );
+     }
+     const result = await pool.query(`
+        DELETE FROM bookings WHERE id =$1 RETURNING id`,
+        [id]);
+   return result.rows[0];
 }
-
-//
+    
+};
 
 

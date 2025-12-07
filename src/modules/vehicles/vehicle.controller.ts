@@ -6,7 +6,6 @@ const createVehicle = async (req: Request, res: Response) => {
   try {
     const { vehicle_name, type, registration_number, daily_rent_price, availability_status } = req.body;
 
-    // Required field validation
     if (!vehicle_name || !type || !registration_number || daily_rent_price === undefined || !availability_status) {
       return res.status(400).json({
         success: false,
