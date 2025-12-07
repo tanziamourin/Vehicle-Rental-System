@@ -11,7 +11,7 @@ router.get("/", vehicleController.getAllVehicles);
 router.get("/:vehicleId", vehicleController.getSingleVehicle);
 
 // Admin Only
-router.post("/", auth("admin"), vehicleController.createVehicle);
+router.post("/", vehicleController.createVehicle);
 router.put("/:vehicleId", auth("admin"), vehicleController.updateVehicle);
 router.delete("/:vehicleId", auth("admin"), vehicleController.deleteVehicle);
 
