@@ -3,8 +3,9 @@ import { vehicleRoutes } from './modules/vehicles/vehicle.route';
 import { authRoute } from './modules/auth/auth.route';
 import { userRouter } from './modules/user/user.route';
 import { bookingRoutes } from './modules/bookings/booking.route';
-import { initDB } from './config/db';
+// import { initDB } from './config/db';
 import { logger } from './middleware/log.middleware';
+import { initDB } from './config/db';
 
 
 
@@ -35,7 +36,7 @@ app.get('/', (req: Request, res: Response) => {
   res.send('Server is running!!!!!')
 })
 app.get('/api/v1', (req: Request, res: Response) => {
-  res.send('Server is running!')
+  res.send('Server is running! on vercel')
 })
 
 // Authentication 
