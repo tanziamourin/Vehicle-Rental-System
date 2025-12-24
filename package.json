@@ -2,7 +2,6 @@
   "name": "a-2-vehicle-rental-system",
   "version": "1.0.0",
   "description": "",
-
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -16,6 +15,7 @@
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^25.0.3",
     "@types/pg": "^8.15.6",
     "@vercel/node": "^2.3.0",
     "bcryptjs": "^3.0.3",
