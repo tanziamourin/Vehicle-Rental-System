@@ -1,7 +1,6 @@
-import type { Request, Response } from 'express';
+import type { VercelRequest, VercelResponse } from '@vercel/node';
+import app from '../src/app';
 
-const app = require('../src/app');
-
-module.exports = function handler(req: Request, res: Response) {
+export default function handler(req: VercelRequest, res: VercelResponse) {
   return app(req, res);
-};
+}

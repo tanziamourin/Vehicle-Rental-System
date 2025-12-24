@@ -1,14 +1,13 @@
+
 {
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout
     "outDir": "./dist",
-    "module": "commonjs",
+
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    // "module": "nodenext",
-     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "module": "nodenext",
     "target": "esnext",
     "lib": ["esnext"],
     "types": ["node"],
@@ -43,6 +42,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
-  "include": ["src/**/*", "api/**/*"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
 }
